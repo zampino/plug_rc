@@ -1,8 +1,9 @@
 defmodule PlugRc.Connections do
-  # public api
 
-  def register(id) do
-    GenServer.call PlugRc.Connections.Registry, {:register, id}
+  def register(id, conn) do
+    {:ok, pid } = GenServer.call PlugRc.Connections.Registry, {:register, id}
+    GenEvent.add_mon_handler pid, PlugRc.Connections.EventHandler, conn
+    {:ok, pid}
   end
 
   def get(id) do
@@ -13,13 +14,8 @@ defmodule PlugRc.Connections do
     GenServer.call PlugRc.Connections.Registry, :all
   end
 
-  def notify_of(manager, body) do
-    event = %{type: body["type"], which: body["which"]}
-    GenEvent.ack_notify manager, event
-  end
-
-  def ping(id) do
-    notify_of get(id), %{"type" => "ping"}
+  def notify(id, event) do
+    get(id) |> GenEvent.ack_notify(event)
   end
 
 end

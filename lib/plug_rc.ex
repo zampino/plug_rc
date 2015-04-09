@@ -5,16 +5,11 @@ defmodule PlugRc do
   # for more information on OTP Applications
   def start(_type, _args) do
     import Supervisor.Spec, warn: false
-
-    children = [
-      # Define workers and child supervisors to be supervised
-      # supervisor(PlugRc.Connections.Supervisor, [])
-      worker(PlugRc.Server, [])
-    ]
-
-    # See http://elixir-lang.org/docs/stable/elixir/Supervisor.html
-    # for other strategies and supported options
     opts = [strategy: :one_for_one, name: PlugRc.Supervisor]
-    Supervisor.start_link(children, opts)
+
+    [
+      supervisor(PlugRc.Connections.Supervisor, []),
+      worker(PlugRc.Server, [])
+    ] |> Supervisor.start_link(opts)
   end
 end

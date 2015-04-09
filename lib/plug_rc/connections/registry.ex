@@ -19,7 +19,7 @@ defmodule PlugRc.Connections.Registry do
     ref = Process.monitor pid
     pids = HashDict.put state.pids, id, pid
     refs = HashDict.put state.refs, ref, id
-    {:reply, pid, %{state | pids: pids, refs: refs}}
+    {:reply, {:ok, pid}, %{state | pids: pids, refs: refs}}
   end
 
   def handle_call(:all, _from, state) do
@@ -33,12 +33,12 @@ defmodule PlugRc.Connections.Registry do
   def handle_info({:DOWN, ref, :process, pid, _reason}, state) do
     {id, refs} = HashDict.pop state.refs, ref
     pids = HashDict.delete state.pids, id
-    IO.puts ">>>>>>>>>> got it! #{inspect(ref)}"
+    IO.puts "\n\n>>>>>>>>>> got it! >>>>>>>>>>>\n #{inspect(ref)}"
     {:noreply, %{state | refs: refs, pids: pids}}
   end
 
   def handle_info(whatever, state) do
-    IO.puts "received: #{inspect(whatever)}"
+    IO.puts "\n\nreceived: \n#{inspect(whatever)}"
     {:noreply, state}
   end
 end
