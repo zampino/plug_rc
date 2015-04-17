@@ -6,12 +6,12 @@ defmodule PlugRc.Router do
   plug PlugCors, [
     origins: ["localhost:3000", "localhost:3001", "https://zampino.github.io"],
   ]
+
   plug :match
+
   plug :dispatch
 
-  def init(_options\\[]) do
-    []
-  end
+  def init(_options), do: []
 
   get "/" do
     send_resp(conn, 200, "<h1>Active Connections</h1><ul>"
@@ -21,9 +21,8 @@ defmodule PlugRc.Router do
 
   get "/connections/:id" do
     put_resp_content_type(conn, "text/event-stream")
-    |> fetch_params()
     |> assign(:init_chunk,
-      "retry: 6000\nid: #{id}\nevent: handshake\ndata: connected #{id}\n\n")
+      "retry: 6000\nevent: handshake\ndata: connected #{id}\n\n")
     |> send_chunked(200)
     |> register_stream(id)
   end
