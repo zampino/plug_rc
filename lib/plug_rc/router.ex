@@ -4,7 +4,7 @@ defmodule PlugRc.Router do
   plug Plug.Parsers, parsers: [:json], pass: "text/*", json_decoder: Poison
 
   plug PlugCors, [
-    origins: ["localhost:3000", "localhost:3001", "https://zampino.github.io"],
+    origins: ["localhost:3000", "localhost:3001", "http://zampino.github.io"],
   ]
 
   plug :match
