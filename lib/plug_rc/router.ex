@@ -5,6 +5,7 @@ defmodule PlugRc.Router do
 
   plug PlugCors, [
     origins: ["localhost:3000", "localhost:3001", "http://zampino.github.io"],
+    headers: ["accept", "origin", "content-type"]
   ]
 
   plug :match
