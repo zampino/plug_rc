@@ -8,24 +8,33 @@ defmodule PlugRc.Router do
     headers: ["accept", "origin", "content-type"]
   ]
 
+  plug Plug.Static, at: "/", from: "static"
+
   plug :match
 
   plug :dispatch
 
   def init(_options), do: []
 
-  get "/" do
-    send_resp(conn, 200, "<h1>Active Connections</h1><ul>"
-      <> Enum.map_join(PlugRc.Connections.all, &("<li>#{&1}</li>"))
-      <> "</ul>")
+  # get "/" do
+  #   send_resp(conn, 200, "<h1>Active Connections</h1><ul>"
+  #     <> Enum.map_join(PlugRc.Connections.all, &("<li>#{&1}</li>"))
+  #     <> "</ul>")
+  # end
+
+  get "/connections" do
+    conn = put_resp_content_type(conn, "text/event-stream") |> register_manager()
+    handshake = Poison.encode_to_iodata! PlugRc.Connections.all
+    assign(conn, :init_chunk, "retry: 6000\nevent: handshake\ndata: #{handshake}\n\n")
+    |> send_chunked(200)
   end
 
-  get "/connections/:id" do
-    put_resp_content_type(conn, "text/event-stream")
-    |> assign(:init_chunk,
-      "retry: 6000\nevent: handshake\ndata: connected #{id}\n\n")
+  get "/remote" do
+    {conn, id} = put_resp_content_type(conn, "text/event-stream")
+    |> register_stream()
+    handshake = Poison.encode_to_iodata!(%{connection_id: id})
+    assign(conn, :init_chunk, "retry: 6000\nevent: handshake\ndata: #{handshake}\n\n")
     |> send_chunked(200)
-    |> register_stream(id)
   end
 
   post "/connections/:id" do
@@ -41,14 +50,18 @@ defmodule PlugRc.Router do
   end
 
   match _ do
+    IO.puts "||||| MISS!!! ||||"
     halt(conn)
   end
 
-  ## private
-
-  defp register_stream(conn, id) do
-    {:ok, pid} = PlugRc.Connections.register id, conn
-    Process.link pid
+  defp register_manager(conn) do
+    :ok = PlugRc.Connections.register_manager conn
     conn
+  end
+
+  defp register_stream(conn) do
+    {:ok, pid, id} = PlugRc.Connections.register conn
+    Process.link pid
+    {conn, id}
   end
 end

@@ -1,9 +1,26 @@
 defmodule PlugRc.Connections do
+  use Supervisor
 
-  def register(id, conn) do
-    {:ok, pid } = GenServer.call PlugRc.Connections.Registry, {:register, id}
-    GenEvent.add_mon_handler pid, PlugRc.Connections.EventHandler, conn
-    {:ok, pid}
+  def start_link do
+    Supervisor.start_link(__MODULE__, :ok)
+  end
+
+  def init(:ok) do
+    child_specs = [
+      supervisor(PlugRc.Connections.EventStream, []),
+      worker(PlugRc.Connections.Registry, [])
+    ]
+    supervise(child_specs, strategy: :one_for_one)
+  end
+
+  # public API
+
+  def register(conn) do
+    GenServer.call PlugRc.Connections.Registry, {:register, conn}
+  end
+
+  def register_manager(conn) do
+    Genserver.call PlugRc.Connections.Registry, {:register, :manager, conn}
   end
 
   def get(id) do
@@ -17,5 +34,8 @@ defmodule PlugRc.Connections do
   def notify(id, event) do
     get(id) |> GenEvent.ack_notify(event)
   end
+
+
+  # supervisor
 
 end

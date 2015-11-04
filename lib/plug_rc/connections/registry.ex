@@ -9,17 +9,25 @@ defmodule PlugRc.Connections.Registry do
     {:ok,
       %{
         refs: HashDict.new,
-        pids: HashDict.new
+        pids: HashDict.new,
+        manager_pids: []
       }
     }
   end
 
-  def handle_call({:register, id}, _from, state) do
-    {:ok, pid} = PlugRc.Connections.EventManagers.add id
+  def handle_call({:register, conn}, _from, state) do
+    {:ok, pid} = PlugRc.RemoteEventStream.connect conn
+    id = make_id(conn)
     ref = Process.monitor pid
     pids = HashDict.put state.pids, id, pid
     refs = HashDict.put state.refs, ref, id
-    {:reply, {:ok, pid}, %{state | pids: pids, refs: refs}}
+    notify_managers(state.manager_pids, id)
+    {:reply, {:ok, pid, id}, %{state | pids: pids, refs: refs}}
+  end
+
+  def handle_call({:register, :manager, conn}, _from, state) do
+    {:ok, pid} = PlugRc.Connections.EventStream.connect(conn)
+    {:reply, :ok, %{state | manager_pids: [pid | state.manager_pids]} }
   end
 
   def handle_call(:all, _from, state) do
@@ -40,5 +48,17 @@ defmodule PlugRc.Connections.Registry do
   def handle_info(whatever, state) do
     IO.puts "\n\nreceived: \n#{inspect(whatever)}"
     {:noreply, state}
+  end
+
+  defp notify_managers([], id), do: :ok
+
+  defp notify_managers([pid | tail], id) do
+    GenEvent.ack_notify pid, %{type: "new_connection", id: id}
+    notify_managers(tail, id)
+  end
+
+  defp make_id(_conn) do
+    # TODO: better (short) a.u.ID
+    inspect(:os.timestamp) |> Base.encode64()
   end
 end

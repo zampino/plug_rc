@@ -3,8 +3,8 @@ defmodule PlugRc.Mixfile do
 
   def project do
     [app: :plug_rc,
-     version: "0.0.1",
-     elixir: "~> 1.0",
+     version: "0.1.0",
+     elixir: "~> 1.1",
      deps: deps]
   end
 
@@ -15,8 +15,7 @@ defmodule PlugRc.Mixfile do
 
   defp deps do
     [
-      {:plug, "~> 0.12.0"},
-      {:pastelli, git: "https://github.com/zampino/pastelli.git"},
+      {:pastelli, github: "zampino/pastelli", branch: "fix_mix_deps_plug_optional_override"},
       {:poison, "~> 1.3.0"},
       {:plug_cors, "~> 0.7.0"}
     ]

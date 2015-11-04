@@ -1,8 +1,9 @@
-%{"cowboy": {:hex, :cowboy, "1.0.0"},
+%{"cowboy": {:hex, :cowboy, "1.0.3"},
   "cowlib": {:hex, :cowlib, "1.0.1"},
   "elli": {:git, "git://github.com/knutin/elli.git", "46135bf5c0096e1419c799535f798d14b2bd6f44", []},
-  "pastelli": {:git, "https://github.com/zampino/pastelli.git", "847e1c3a630b6c7177cb99574d43db5a8a8ab4c9", []},
-  "plug": {:hex, :plug, "0.12.0"},
+  "elli_websocket": {:git, "https://github.com/mmzeeman/elli_websocket.git", "1ce5f3707fb90332f2983656878e58937d5e903d", []},
+  "pastelli": {:git, "https://github.com/zampino/pastelli.git", "42630953be7a6c311b831f355f55dbc81cbb65f8", [branch: "fix_mix_deps_plug_optional_override"]},
+  "plug": {:hex, :plug, "1.0.2"},
   "plug_cors": {:hex, :plug_cors, "0.7.1"},
   "poison": {:hex, :poison, "1.3.1"},
-  "ranch": {:hex, :ranch, "1.0.0"}}
+  "ranch": {:hex, :ranch, "1.1.0"}}
