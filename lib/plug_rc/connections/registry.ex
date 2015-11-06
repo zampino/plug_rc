@@ -21,7 +21,7 @@ defmodule PlugRc.Connections.Registry do
     ref = Process.monitor pid
     pids = HashDict.put state.pids, id, pid
     refs = HashDict.put state.refs, ref, id
-    notify_managers(state.manager_pids, id)
+    notify_managers(state.manager_pids, "join", id)
     {:reply, {:ok, pid, id}, %{state | pids: pids, refs: refs}}
   end
 
@@ -38,23 +38,24 @@ defmodule PlugRc.Connections.Registry do
     {:reply, HashDict.get(state.pids, id), state}
   end
 
-  def handle_info({:DOWN, ref, :process, pid, _reason}, state) do
+  def handle_info({:DOWN, ref, :process, pid, :chunk_complete}, state) do
     {id, refs} = HashDict.pop state.refs, ref
     pids = HashDict.delete state.pids, id
+    notify_managers state.manager_pids, "leave", id
     IO.puts "\n\n>>>>>>>>>> got it! >>>>>>>>>>>\n #{inspect(ref)}"
     {:noreply, %{state | refs: refs, pids: pids}}
   end
 
   def handle_info(whatever, state) do
-    IO.puts "\n\nreceived: \n#{inspect(whatever)}"
+    IO.puts "\n\n[INFO] received: \n#{inspect(whatever)}"
     {:noreply, state}
   end
 
-  defp notify_managers([], id), do: :ok
+  defp notify_managers([], _, _), do: :ok
 
-  defp notify_managers([pid | tail], id) do
-    GenEvent.ack_notify pid, %{type: "new_connection", id: id}
-    notify_managers(tail, id)
+  defp notify_managers([pid | tail], action, id) do
+    GenEvent.ack_notify pid, %{action: action, body: %{connection_id: id}}
+    notify_managers(tail, action, id)
   end
 
   defp make_id(_conn) do

@@ -11,19 +11,13 @@ defmodule PlugRc.Router do
   plug Plug.Static, at: "/", from: "static"
 
   plug :match
-
   plug :dispatch
 
   def init(_options), do: []
 
-  # get "/" do
-  #   send_resp(conn, 200, "<h1>Active Connections</h1><ul>"
-  #     <> Enum.map_join(PlugRc.Connections.all, &("<li>#{&1}</li>"))
-  #     <> "</ul>")
-  # end
-
   get "/connections" do
-    conn = put_resp_content_type(conn, "text/event-stream") |> register_manager()
+    conn = put_resp_content_type(conn, "text/event-stream")
+    |> register_manager()
     handshake = Poison.encode_to_iodata! PlugRc.Connections.all
     assign(conn, :init_chunk, "retry: 6000\nevent: handshake\ndata: #{handshake}\n\n")
     |> send_chunked(200)

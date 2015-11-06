@@ -1,58 +1,29 @@
-module Remote (Model, init, Action, update, view, viewWithRemoveButton, Context) where
+module Remote (Model, init, Action, update, view) where
 
+import Effects
 import Html exposing (..)
 import Html.Attributes exposing (..)
 import Html.Events exposing (..)
 
+type alias Model = {id : String}
+type Action = Left | Right
 
--- MODEL
+init {connection_id} =
+  Model connection_id
 
-type alias Model = Int
-
-
-init : Int -> Model
-init count = count
-
-
--- UPDATE
-
-type Action = Increment | Decrement
-
-
-update : Action -> Model -> Model
+update : Action -> Model -> (Model, Effects.Effects e)
 update action model =
   case action of
-    Increment -> model + 1
-    Decrement -> model - 1
-
-
--- VIEW
+    Left -> (model, Effects.none)
+    Right -> (model, Effects.none)
 
 view : Signal.Address Action -> Model -> Html
 view address model =
   div []
-    [ button [ onClick address Decrement ] [ text "-" ]
+    [ button [ onClick address Left ] [ text "<-" ]
     , div [ countStyle ] [ text (toString model) ]
-    , button [ onClick address Increment ] [ text "+" ]
+    , button [ onClick address Right ] [ text "->" ]
     ]
-
-
-type alias Context =
-    { actions : Signal.Address Action
-    , remove : Signal.Address ()
-    }
-
-
-viewWithRemoveButton : Context -> Model -> Html
-viewWithRemoveButton context model =
-  div []
-    [ button [ onClick context.actions Decrement ] [ text "-" ]
-    , div [ countStyle ] [ text (toString model) ]
-    , button [ onClick context.actions Increment ] [ text "+" ]
-    , div [ countStyle ] []
-    , button [ onClick context.remove () ] [ text "X" ]
-    ]
-
 
 countStyle : Attribute
 countStyle =

@@ -1,23 +1,44 @@
-import RemoteList exposing (init, update, view)
-import StartApp.Simple exposing (start)
+import RemoteList exposing (init, update, view, Action)
+import StartApp exposing (start)
 
-type EventType = NoOp (String)
+type ActionType = NoOp (String)
   | Join (String)
   | Leave (String)
 
-type alias ConnectionEvent = { connection_id: String }
-type alias HandShakeEvent = List (ConnectionEvent)
+type alias ConnectionInfo = { connection_id : String }
 
-port handshakeEvents : Signal (HandShakeEvent)
-port actionEvents : Signal (ActionType, ActionEvent)
+port handshakeEvents : Signal (List ConnectionInfo)
+port connectionEvents : Signal (ActionType, ConnectionInfo)
 
--- connectionEventsSignal : Signal Manager.Operation
--- connectionEventsSignal =
---   Signal.map RemoteList.mapConnection connectionEvent
+connectionEventsSignal : Signal Action
+connectionEventsSignal =
+  Signal.map RemoteList.mapConnection connectionEvents
 
-main =
+
+connectionEventsMap : (ActionType, ConnectionInfo) -> Action a
+connectionEventsMap t, {connection_id} =
+    case of t
+      "join" -> Join connection_id
+      "leave" -> Leave connection_id
+
+handshakeEventsMap : List -> Action a
+handshakeEventsMap list =
+  Init list
+
+handshakeEventsSignal : Signal Action
+  Signal.map \x -> x handshakeEvents
+
+app =
   start
-    { model = init
+    { init = init
     , update = update
     , view = view
+    , inputs = [ handShakeEventsSignal, connectionEventsSignal]
     }
+
+main =
+  app.html
+
+port tasks : Signal (Task.Task Effects.Never ())
+port tasks =
+  app.tasks

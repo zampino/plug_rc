@@ -20,7 +20,7 @@ defmodule PlugRc.Connections do
   end
 
   def register_manager(conn) do
-    Genserver.call PlugRc.Connections.Registry, {:register, :manager, conn}
+    GenServer.call PlugRc.Connections.Registry, {:register, :manager, conn}
   end
 
   def get(id) do
@@ -34,8 +34,4 @@ defmodule PlugRc.Connections do
   def notify(id, event) do
     get(id) |> GenEvent.ack_notify(event)
   end
-
-
-  # supervisor
-
 end

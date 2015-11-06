@@ -7,7 +7,7 @@ defmodule PlugRc.Connections.EventStream do
 
   def connect(conn) do
     IO.puts "---> adding a child  <----"
-    Supervisor.start_child(__MODULE__, [conn, [name: :connections]])
+    Supervisor.start_child(__MODULE__, [conn])
   end
 
   def init(:ok) do
