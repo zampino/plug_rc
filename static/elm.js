@@ -12893,24 +12893,27 @@ Elm.Remote.make = function (_elm) {
    $Result = Elm.Result.make(_elm),
    $Signal = Elm.Signal.make(_elm),
    $Task = Elm.Task.make(_elm);
-   var countStyle = $Html$Attributes.style(_L.fromArray([{ctor: "_Tuple2"
-                                                         ,_0: "font-size"
-                                                         ,_1: "20px"}
-                                                        ,{ctor: "_Tuple2"
-                                                         ,_0: "font-family"
-                                                         ,_1: "monospace"}
-                                                        ,{ctor: "_Tuple2"
-                                                         ,_0: "display"
-                                                         ,_1: "inline-block"}
-                                                        ,{ctor: "_Tuple2"
-                                                         ,_0: "width"
-                                                         ,_1: "50px"}
-                                                        ,{ctor: "_Tuple2"
-                                                         ,_0: "text-align"
-                                                         ,_1: "center"}
-                                                        ,{ctor: "_Tuple2"
-                                                         ,_0: "margin-bottom"
-                                                         ,_1: "1em"}]));
+   var textStyle = $Html$Attributes.style(_L.fromArray([{ctor: "_Tuple2"
+                                                        ,_0: "font-size"
+                                                        ,_1: "10em"}
+                                                       ,{ctor: "_Tuple2"
+                                                        ,_0: "font-family"
+                                                        ,_1: "monospace"}
+                                                       ,{ctor: "_Tuple2"
+                                                        ,_0: "display"
+                                                        ,_1: "inline-block"}
+                                                       ,{ctor: "_Tuple2"
+                                                        ,_0: "text-align"
+                                                        ,_1: "center"}
+                                                       ,{ctor: "_Tuple2"
+                                                        ,_0: "margin-bottom"
+                                                        ,_1: "1em"}]));
+   var buttonStyle = $Html$Attributes.style(_L.fromArray([{ctor: "_Tuple2"
+                                                          ,_0: "font-size"
+                                                          ,_1: "3em"}
+                                                         ,{ctor: "_Tuple2"
+                                                          ,_0: "margin"
+                                                          ,_1: "0 1em"}]));
    var postJson = F2(function (url,
    body) {
       return function () {
@@ -12962,17 +12965,19 @@ Elm.Remote.make = function (_elm) {
       _L.fromArray([]),
       _L.fromArray([A2($Html.button,
                    _L.fromArray([A2($Html$Events.onClick,
-                   address,
-                   Left)]),
-                   _L.fromArray([$Html.text("<-")]))
+                                address,
+                                Left)
+                                ,buttonStyle]),
+                   _L.fromArray([$Html.text("<")]))
                    ,A2($Html.div,
-                   _L.fromArray([countStyle]),
+                   _L.fromArray([textStyle]),
                    _L.fromArray([$Html.text(model.connection_id)]))
                    ,A2($Html.button,
                    _L.fromArray([A2($Html$Events.onClick,
-                   address,
-                   Right)]),
-                   _L.fromArray([$Html.text("->")]))]));
+                                address,
+                                Right)
+                                ,buttonStyle]),
+                   _L.fromArray([$Html.text(">")]))]));
    });
    var NoOp = {ctor: "NoOp"};
    var requestTurn = F2(function (id,

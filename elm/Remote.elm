@@ -49,18 +49,23 @@ postJson url body =
 view : Signal.Address Action -> Model -> Html
 view address model =
   div []
-    [ button [ onClick address Left ] [ text "<-" ]
-    , div [ countStyle ] [ text model.connection_id ]
-    , button [ onClick address Right ] [ text "->" ]
+    [ button [ (onClick address Left), buttonStyle ] [ text "<" ]
+    , div [ textStyle ] [ text model.connection_id ]
+    , button [ (onClick address Right), buttonStyle ] [ text ">" ]
     ]
 
-countStyle : Attribute
-countStyle =
+buttonStyle =
   style
-    [ ("font-size", "20px")
+    [ ("font-size", "3em")
+    , ("margin", "0 1em")
+    ]
+
+textStyle =
+  style
+    [ ("font-size", "10em")
     , ("font-family", "monospace")
     , ("display", "inline-block")
-    , ("width", "50px")
+--    , ("width", "50px")
     , ("text-align", "center")
     , ("margin-bottom", "1em")
     ]

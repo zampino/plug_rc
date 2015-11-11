@@ -1,6 +1,6 @@
 defmodule EventStream do
   require Logger
-  
+
   def start_link(conn) do
     {:ok, events_pid} = GenEvent.start_link
     Task.start_link __MODULE__, :stream, [conn, events_pid]
