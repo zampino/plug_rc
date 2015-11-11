@@ -1,5 +1,6 @@
 defmodule PlugRc.Router do
   use Plug.Router
+  require Logger
 
   plug Plug.Parsers, parsers: [:json], pass: ["text/*"], json_decoder: Poison
 
@@ -33,7 +34,8 @@ defmodule PlugRc.Router do
 
   post "/connections/:id" do
     %Plug.Conn{params: params} = conn
-    event = %{type: params["type"], which: params["which"]}
+    Logger.debug "[POST] /connections/#{id} { #{inspect params} }"
+    event = %{action: params["action"], which: params["which"]}
     :ok = PlugRc.Connections.notify id, event
     send_resp(conn, 201, '')
   end

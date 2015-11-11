@@ -4660,9 +4660,9 @@ Elm.Main.make = function (_elm) {
    app.tasks);
    _elm.Main.values = {_op: _op
                       ,connectionEventsMap: connectionEventsMap
-                      ,connectionEventsSignal: connectionEventsSignal
                       ,handshakeEventsMap: handshakeEventsMap
                       ,handshakeEventsSignal: handshakeEventsSignal
+                      ,connectionEventsSignal: connectionEventsSignal
                       ,app: app
                       ,main: main};
    return _elm.Main.values;
@@ -12911,6 +12911,25 @@ Elm.Remote.make = function (_elm) {
                                                         ,{ctor: "_Tuple2"
                                                          ,_0: "margin-bottom"
                                                          ,_1: "1em"}]));
+   var postJson = F2(function (url,
+   body) {
+      return function () {
+         var request = {_: {}
+                       ,body: $Http.string(A2($Json$Encode.encode,
+                       0,
+                       body))
+                       ,headers: _L.fromArray([{ctor: "_Tuple2"
+                                               ,_0: "content-type"
+                                               ,_1: "application/json"}])
+                       ,url: url
+                       ,verb: "POST"};
+         return A2($Http.fromJson,
+         $Json$Decode.string,
+         A2($Http.send,
+         $Http.defaultSettings,
+         request));
+      }();
+   });
    var messageFor = function (action) {
       return function () {
          var _v0 = A2($Debug.log,
@@ -12927,7 +12946,7 @@ Elm.Remote.make = function (_elm) {
             case "Right":
             return $Json$Encode.object(_L.fromArray([{ctor: "_Tuple2"
                                                      ,_0: "which"
-                                                     ,_1: $Json$Encode.$int(38)}
+                                                     ,_1: $Json$Encode.$int(39)}
                                                     ,{ctor: "_Tuple2"
                                                      ,_0: "action"
                                                      ,_1: $Json$Encode.string("turn")}]));}
@@ -12958,14 +12977,11 @@ Elm.Remote.make = function (_elm) {
    var NoOp = {ctor: "NoOp"};
    var requestTurn = F2(function (id,
    message) {
-      return $Effects.task($Task.map($Basics.always(NoOp))($Task.toMaybe(A3($Http.post,
-      $Json$Decode.string,
+      return $Effects.task($Task.map($Basics.always(NoOp))($Task.toMaybe(A2(postJson,
       A2($Basics._op["++"],
       "/connections/",
       id),
-      $Http.string(A2($Json$Encode.encode,
-      0,
-      message))))));
+      message))));
    });
    var update = F2(function (action,
    model) {

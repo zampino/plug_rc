@@ -27,14 +27,24 @@ messageFor : Action -> JSEncode.Value
 messageFor action =
   case log "messageFor action: " action of
     Left  -> JSEncode.object [("which", JSEncode.int 37), ("action", JSEncode.string "turn")]
-    Right  -> JSEncode.object [("which", JSEncode.int 38), ("action", JSEncode.string "turn")]
+    Right  -> JSEncode.object [("which", JSEncode.int 39), ("action", JSEncode.string "turn")]
 
 requestTurn : String -> JSEncode.Value -> Effects.Effects Action
 requestTurn id message =
-  Http.post (JSDecode.string) ("/connections/" ++ id) ( Http.string ( JSEncode.encode 0 message ) )
+  postJson  ("/connections/" ++ id) message
   |> Task.toMaybe
   |> Task.map ( always NoOp )
   |> Effects.task
+
+postJson url body =
+  let request =
+    { verb = "POST"
+    , headers = [("content-type", "application/json")]
+    , url = url
+    , body = Http.string ( JSEncode.encode 0 body )
+    }
+  in
+    Http.fromJson (JSDecode.string) (Http.send Http.defaultSettings request)
 
 view : Signal.Address Action -> Model -> Html
 view address model =

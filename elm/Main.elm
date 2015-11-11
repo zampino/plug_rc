@@ -18,16 +18,17 @@ connectionEventsMap (t, conn) =
       "noOp" ->
         RemoteList.noOp
 
-connectionEventsSignal : Signal RemoteList.Action
-connectionEventsSignal =
-  Signal.map connectionEventsMap connectionEvents
-
 handshakeEventsMap : (List (Remote.Model)) -> RemoteList.Action
 handshakeEventsMap list =
   RemoteList.initList list
+
 handshakeEventsSignal : Signal RemoteList.Action
 handshakeEventsSignal =
   Signal.map handshakeEventsMap handshakeEvents
+
+connectionEventsSignal : Signal RemoteList.Action
+connectionEventsSignal =
+  Signal.map connectionEventsMap connectionEvents
 
 app =
   start

@@ -49,7 +49,6 @@ update action model =
       in
         (model, Effects.map (Control c_id) action_effect)
 
-
 view : Signal.Address Action -> Model -> Html
 view address model =
   div [] (List.map (viewRemote address) model)
