@@ -1,54 +1,63 @@
 defmodule PlugRc.Router do
   use Plug.Router
+  require Logger
 
-  plug Plug.Parsers, parsers: [:json], pass: "text/*", json_decoder: Poison
+  plug Plug.Parsers, parsers: [:json], pass: ["text/*"], json_decoder: Poison
 
   plug PlugCors, [
     origins: ["localhost:3000", "localhost:3001", "http://zampino.github.io"],
     headers: ["accept", "origin", "content-type"]
   ]
 
-  plug :match
+  plug Plug.Static, at: "/", from: "static"
 
+  plug :match
   plug :dispatch
 
   def init(_options), do: []
 
-  get "/" do
-    send_resp(conn, 200, "<h1>Active Connections</h1><ul>"
-      <> Enum.map_join(PlugRc.Connections.all, &("<li>#{&1}</li>"))
-      <> "</ul>")
+  get "/connections" do
+    conn = put_resp_content_type(conn, "text/event-stream")
+    |> send_chunked(200)
+    |> register_controller()
+    handshake = Poison.encode_to_iodata! PlugRc.Connections.remotes
+    assign(conn, :init_chunk, "retry: 6000\nevent: handshake\ndata: #{handshake}\n\n")
   end
 
-  get "/connections/:id" do
-    put_resp_content_type(conn, "text/event-stream")
-    |> assign(:init_chunk,
-      "retry: 6000\nevent: handshake\ndata: connected #{id}\n\n")
+  get "/remote" do
+    {conn, id} = put_resp_content_type(conn, "text/event-stream")
     |> send_chunked(200)
-    |> register_stream(id)
+    |> register_remote()
+    handshake = Poison.encode_to_iodata!(%{connection_id: id})
+    assign(conn, :init_chunk, "retry: 6000\nevent: handshake\ndata: #{handshake}\n\n")
   end
 
   post "/connections/:id" do
     %Plug.Conn{params: params} = conn
-    event = %{type: params["type"], which: params["which"]}
+    Logger.debug "[POST] /connections/#{id} { #{inspect params} }"
+    event = %{action: params["action"], which: params["which"]}
     :ok = PlugRc.Connections.notify id, event
     send_resp(conn, 201, '')
   end
 
-  options "/connections/:id" do
+  options "/remote" do
     IO.puts ">>> preflight! <<<<<\n"
     send_resp(conn, 204, "")
   end
 
   match _ do
+    IO.puts "||||| MISS!!! ||||"
     halt(conn)
   end
 
-  ## private
-
-  defp register_stream(conn, id) do
-    {:ok, pid} = PlugRc.Connections.register id, conn
-    Process.link pid
+  defp register_controller(conn) do
+    {:ok, _pid, _id} = PlugRc.Connections.register_controller conn
     conn
+  end
+
+  defp register_remote(conn) do
+    {:ok, pid, id} = PlugRc.Connections.register_remote conn
+    Process.link pid
+    {conn, id}
   end
 end
