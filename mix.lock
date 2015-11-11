@@ -1,6 +1,6 @@
 %{"cowboy": {:hex, :cowboy, "1.0.3"},
   "cowlib": {:hex, :cowlib, "1.0.1"},
-  "elli": {:git, "git://github.com/knutin/elli.git", "46135bf5c0096e1419c799535f798d14b2bd6f44", []},
+  "elli": {:git, "https://github.com/knutin/elli.git", "d3a54c059c415b843e9ab27cb5ab134dc113262f", []},
   "elli_websocket": {:git, "https://github.com/mmzeeman/elli_websocket.git", "1ce5f3707fb90332f2983656878e58937d5e903d", []},
   "hashids": {:hex, :hashids, "2.0.0"},
   "pastelli": {:git, "https://github.com/zampino/pastelli.git", "9f757e5e9719123a39bba7ddebe2079ace5d22b7", []},
