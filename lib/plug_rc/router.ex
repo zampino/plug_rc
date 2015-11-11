@@ -1,7 +1,7 @@
 defmodule PlugRc.Router do
   use Plug.Router
 
-  plug Plug.Parsers, parsers: [:json], pass: "text/*", json_decoder: Poison
+  plug Plug.Parsers, parsers: [:json], pass: ["text/*"], json_decoder: Poison
 
   plug PlugCors, [
     origins: ["localhost:3000", "localhost:3001", "http://zampino.github.io"],

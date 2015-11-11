@@ -12887,6 +12887,7 @@ Elm.Remote.make = function (_elm) {
    $Html$Events = Elm.Html.Events.make(_elm),
    $Http = Elm.Http.make(_elm),
    $Json$Decode = Elm.Json.Decode.make(_elm),
+   $Json$Encode = Elm.Json.Encode.make(_elm),
    $List = Elm.List.make(_elm),
    $Maybe = Elm.Maybe.make(_elm),
    $Result = Elm.Result.make(_elm),
@@ -12906,29 +12907,34 @@ Elm.Remote.make = function (_elm) {
                                                          ,_1: "50px"}
                                                         ,{ctor: "_Tuple2"
                                                          ,_0: "text-align"
-                                                         ,_1: "center"}]));
+                                                         ,_1: "center"}
+                                                        ,{ctor: "_Tuple2"
+                                                         ,_0: "margin-bottom"
+                                                         ,_1: "1em"}]));
    var messageFor = function (action) {
       return function () {
          var _v0 = A2($Debug.log,
          "messageFor action: ",
          action);
          switch (_v0.ctor)
-         {case "Left": return {_: {}
-                              ,action: "turn"
-                              ,which: 37};
-            case "Right": return {_: {}
-                                 ,action: "turn"
-                                 ,which: 38};}
+         {case "Left":
+            return $Json$Encode.object(_L.fromArray([{ctor: "_Tuple2"
+                                                     ,_0: "which"
+                                                     ,_1: $Json$Encode.$int(37)}
+                                                    ,{ctor: "_Tuple2"
+                                                     ,_0: "action"
+                                                     ,_1: $Json$Encode.string("turn")}]));
+            case "Right":
+            return $Json$Encode.object(_L.fromArray([{ctor: "_Tuple2"
+                                                     ,_0: "which"
+                                                     ,_1: $Json$Encode.$int(38)}
+                                                    ,{ctor: "_Tuple2"
+                                                     ,_0: "action"
+                                                     ,_1: $Json$Encode.string("turn")}]));}
          _U.badCase($moduleName,
          "between lines 28 and 30");
       }();
    };
-   var Message = F2(function (a,
-   b) {
-      return {_: {}
-             ,action: b
-             ,which: a};
-   });
    var Right = {ctor: "Right"};
    var Left = {ctor: "Left"};
    var view = F2(function (address,
@@ -12950,26 +12956,16 @@ Elm.Remote.make = function (_elm) {
                    _L.fromArray([$Html.text("->")]))]));
    });
    var NoOp = {ctor: "NoOp"};
-   var taskMap = function (r) {
-      return function () {
-         var _v1 = A2($Debug.log,
-         "response",
-         r);
-         switch (_v1.ctor)
-         {case "Just": return NoOp;
-            case "Nothing": return NoOp;}
-         _U.badCase($moduleName,
-         "between lines 41 and 43");
-      }();
-   };
    var requestTurn = F2(function (id,
    message) {
-      return $Effects.task($Task.map(taskMap)($Task.toMaybe(A3($Http.post,
+      return $Effects.task($Task.map($Basics.always(NoOp))($Task.toMaybe(A3($Http.post,
       $Json$Decode.string,
       A2($Basics._op["++"],
       "/connections/",
       id),
-      $Http.string($Basics.toString(message))))));
+      $Http.string(A2($Json$Encode.encode,
+      0,
+      message))))));
    });
    var update = F2(function (action,
    model) {

@@ -6,7 +6,8 @@ import Html exposing (..)
 import Html.Attributes exposing (..)
 import Html.Events exposing (..)
 import Http
-import Json.Decode as Json
+import Json.Decode as JSDecode
+import Json.Encode as JSEncode
 import Debug exposing (log)
 
 type alias Model = { connection_id : String }
@@ -22,25 +23,18 @@ update action model =
     NoOp -> (model, Effects.none)
     _ -> (model, requestTurn model.connection_id (messageFor action))
 
-type alias Message = { which: Int, action: String }
-messageFor : Action -> Message
+messageFor : Action -> JSEncode.Value
 messageFor action =
   case log "messageFor action: " action of
-    Left -> { which = 37, action = "turn" }
-    Right -> { which = 38, action = "turn" }
+    Left  -> JSEncode.object [("which", JSEncode.int 37), ("action", JSEncode.string "turn")]
+    Right  -> JSEncode.object [("which", JSEncode.int 38), ("action", JSEncode.string "turn")]
 
-requestTurn : String -> Message -> Effects.Effects Action
+requestTurn : String -> JSEncode.Value -> Effects.Effects Action
 requestTurn id message =
-  Http.post (Json.string) ("/connections/" ++ id) (Http.string (toString message))
+  Http.post (JSDecode.string) ("/connections/" ++ id) ( Http.string ( JSEncode.encode 0 message ) )
   |> Task.toMaybe
-  |> Task.map taskMap
+  |> Task.map ( always NoOp )
   |> Effects.task
-
-taskMap : Maybe String -> Action
-taskMap r =
-  case log "response" r of
-    Just val -> NoOp
-    Nothing -> NoOp
 
 view : Signal.Address Action -> Model -> Html
 view address model =
@@ -58,4 +52,5 @@ countStyle =
     , ("display", "inline-block")
     , ("width", "50px")
     , ("text-align", "center")
+    , ("margin-bottom", "1em")
     ]
