@@ -1,41 +1,41 @@
-import RemoteList exposing (init, update, view, Action)
+import RemoteList
+import Remote
 import StartApp exposing (start)
+import Task
+import Effects
+import Debug exposing (log)
 
-type ActionType = NoOp (String)
-  | Join (String)
-  | Leave (String)
+port handshakeEvents : Signal (List (Remote.Model))
+port connectionEvents : Signal (String, Remote.Model)
 
-type alias ConnectionInfo = { connection_id : String }
+connectionEventsMap : (String, Remote.Model) -> RemoteList.Action
+connectionEventsMap (t, conn) =
+    case log "event type" t of
+      "join" ->
+        RemoteList.join conn
+      "leave" ->
+        RemoteList.leave conn
+      "noOp" ->
+        RemoteList.noOp
 
-port handshakeEvents : Signal (List ConnectionInfo)
-port connectionEvents : Signal (ActionType, ConnectionInfo)
-
-connectionEventsSignal : Signal Action
+connectionEventsSignal : Signal RemoteList.Action
 connectionEventsSignal =
-  Signal.map RemoteList.mapConnection connectionEvents
+  Signal.map connectionEventsMap connectionEvents
 
-
-connectionEventsMap : (ActionType, ConnectionInfo) -> Action a
-connectionEventsMap t, {connection_id} =
-    case of t
-      "join" -> Join connection_id
-      "leave" -> Leave connection_id
-
-handshakeEventsMap : List -> Action a
+handshakeEventsMap : (List (Remote.Model)) -> RemoteList.Action
 handshakeEventsMap list =
-  Init list
-
-handshakeEventsSignal : Signal Action
-  Signal.map \x -> x handshakeEvents
+  RemoteList.initList list
+handshakeEventsSignal : Signal RemoteList.Action
+handshakeEventsSignal =
+  Signal.map handshakeEventsMap handshakeEvents
 
 app =
   start
-    { init = init
-    , update = update
-    , view = view
-    , inputs = [ handShakeEventsSignal, connectionEventsSignal]
+    { init = RemoteList.init
+    , update = RemoteList.update
+    , view = RemoteList.view
+    , inputs = [ handshakeEventsSignal, connectionEventsSignal ]
     }
-
 main =
   app.html
 

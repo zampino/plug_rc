@@ -1,27 +1,50 @@
 module Remote (Model, init, Action, update, view) where
 
 import Effects
+import Task
 import Html exposing (..)
 import Html.Attributes exposing (..)
 import Html.Events exposing (..)
+import Http
+import Json.Decode as Json
+import Debug exposing (log)
 
-type alias Model = {id : String}
+type alias Model = { connection_id : String }
 type Action = Left | Right
 
-init {connection_id} =
-  Model connection_id
+init : { x | connection_id : String } -> Model
+init x =
+  Model x.connection_id
 
-update : Action -> Model -> (Model, Effects.Effects e)
+update : Action -> Model -> (Model, Effects.Effects String)
 update action model =
-  case action of
-    Left -> (model, Effects.none)
-    Right -> (model, Effects.none)
+  (model, requestTurn model.connection_id (messageFor action))
+
+type alias Message = { which: Int, action: String }
+messageFor : Action -> Message
+messageFor action =
+  case log "messageFor action: " action of
+    Left -> { which = 37, action = "turn" }
+    Right -> { which = 38, action = "turn" }
+
+requestTurn : String -> Message -> Effects.Effects String
+requestTurn id message =
+  Http.post (Json.string) ("/connections/" ++ id) (Http.string (toString message))
+  |> Task.toMaybe
+  |> Task.map taskMap
+  |> Effects.task
+
+taskMap : Maybe String -> String
+taskMap r =
+  case log "response" r of
+    Just val -> val
+    Nothing -> "error"
 
 view : Signal.Address Action -> Model -> Html
 view address model =
   div []
     [ button [ onClick address Left ] [ text "<-" ]
-    , div [ countStyle ] [ text (toString model) ]
+    , div [ countStyle ] [ text model.connection_id ]
     , button [ onClick address Right ] [ text "->" ]
     ]
 

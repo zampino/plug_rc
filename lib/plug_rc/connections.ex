@@ -7,7 +7,6 @@ defmodule PlugRc.Connections do
 
   def init(:ok) do
     child_specs = [
-      supervisor(PlugRc.Connections.EventStream, []),
       worker(PlugRc.Connections.Registry, [])
     ]
     supervise(child_specs, strategy: :one_for_one)
@@ -15,20 +14,20 @@ defmodule PlugRc.Connections do
 
   # public API
 
-  def register(conn) do
-    GenServer.call PlugRc.Connections.Registry, {:register, conn}
+  def register_remote(conn) do
+    GenServer.call PlugRc.Connections.Registry, {:register, :remote, conn}
   end
 
-  def register_manager(conn) do
-    GenServer.call PlugRc.Connections.Registry, {:register, :manager, conn}
+  def register_controller(conn) do
+    GenServer.call PlugRc.Connections.Registry, {:register, :controller, conn}
   end
 
   def get(id) do
     GenServer.call PlugRc.Connections.Registry, {:get, id}
   end
 
-  def all do
-    GenServer.call PlugRc.Connections.Registry, :all
+  def remotes do
+    GenServer.call PlugRc.Connections.Registry, :remotes
   end
 
   def notify(id, event) do

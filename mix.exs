@@ -16,6 +16,7 @@ defmodule PlugRc.Mixfile do
   defp deps do
     [
       {:pastelli, path: "../pastelli"},
+      {:hashids, "~> 2.0"},
       #{:pastelli, github: "zampino/pastelli", branch: "fix_mix_deps_plug_optional_override"},
       {:poison, "~> 1.3.0"},
       {:plug_cors, "~> 0.7.0"}

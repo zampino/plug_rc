@@ -17,18 +17,18 @@ defmodule PlugRc.Router do
 
   get "/connections" do
     conn = put_resp_content_type(conn, "text/event-stream")
-    |> register_manager()
-    handshake = Poison.encode_to_iodata! PlugRc.Connections.all
-    assign(conn, :init_chunk, "retry: 6000\nevent: handshake\ndata: #{handshake}\n\n")
     |> send_chunked(200)
+    |> register_controller()
+    handshake = Poison.encode_to_iodata! PlugRc.Connections.remotes
+    assign(conn, :init_chunk, "retry: 6000\nevent: handshake\ndata: #{handshake}\n\n")
   end
 
   get "/remote" do
     {conn, id} = put_resp_content_type(conn, "text/event-stream")
-    |> register_stream()
+    |> send_chunked(200)
+    |> register_remote()
     handshake = Poison.encode_to_iodata!(%{connection_id: id})
     assign(conn, :init_chunk, "retry: 6000\nevent: handshake\ndata: #{handshake}\n\n")
-    |> send_chunked(200)
   end
 
   post "/connections/:id" do
@@ -38,7 +38,7 @@ defmodule PlugRc.Router do
     send_resp(conn, 201, '')
   end
 
-  options "/connections/:id" do
+  options "/remote" do
     IO.puts ">>> preflight! <<<<<\n"
     send_resp(conn, 204, "")
   end
@@ -48,13 +48,13 @@ defmodule PlugRc.Router do
     halt(conn)
   end
 
-  defp register_manager(conn) do
-    :ok = PlugRc.Connections.register_manager conn
+  defp register_controller(conn) do
+    {:ok, _pid, _id} = PlugRc.Connections.register_controller conn
     conn
   end
 
-  defp register_stream(conn) do
-    {:ok, pid, id} = PlugRc.Connections.register conn
+  defp register_remote(conn) do
+    {:ok, pid, id} = PlugRc.Connections.register_remote conn
     Process.link pid
     {conn, id}
   end

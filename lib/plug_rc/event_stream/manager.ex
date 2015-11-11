@@ -1,4 +1,4 @@
-defmodule PlugRc.RemoteEventStream do
+defmodule PlugRc.EventStream.Manager do
   use Supervisor
 
   def start_link do

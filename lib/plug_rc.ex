@@ -6,7 +6,7 @@ defmodule PlugRc do
     opts = [strategy: :one_for_one, name: PlugRc.Supervisor]
     [
       supervisor(PlugRc.Connections, []),
-      supervisor(PlugRc.RemoteEventStream, []),
+      supervisor(PlugRc.EventStream.Manager, []),
       worker(PlugRc.Server, [])
     ] |> Supervisor.start_link(opts)
   end

@@ -8,18 +8,18 @@
         elmPorts.handshakeEvents.send(connections)
       })
 
-      source.addEventListener("event", function(event) {
+      source.addEventListener("message", function(event) {
         var data = JSON.parse(event.data)
-        console.log("[MESSAGE]", data)
+        console.log("[MESSAGE]:", data, event.type)
         // TODO: use primary event type with just one port instead!!
         elmPorts.connectionEvents.send([data.action, data.body])
       })
     }
   }
 
-  Connect.prototype.connect = function(url) {
+  EventSourcePorts.prototype.connect = function(url) {
     var e = new EventSource(url)
     this.attachListeners(e)
   }
-  main.Connect = Connect
+  main.EventSourcePorts = EventSourcePorts
 })(window)

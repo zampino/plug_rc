@@ -2,6 +2,7 @@
   "cowlib": {:hex, :cowlib, "1.0.1"},
   "elli": {:git, "git://github.com/knutin/elli.git", "46135bf5c0096e1419c799535f798d14b2bd6f44", []},
   "elli_websocket": {:git, "https://github.com/mmzeeman/elli_websocket.git", "1ce5f3707fb90332f2983656878e58937d5e903d", []},
+  "hashids": {:hex, :hashids, "2.0.0"},
   "pastelli": {:git, "https://github.com/zampino/pastelli.git", "42630953be7a6c311b831f355f55dbc81cbb65f8", [branch: "fix_mix_deps_plug_optional_override"]},
   "plug": {:hex, :plug, "1.0.2"},
   "plug_cors": {:hex, :plug_cors, "0.7.1"},
