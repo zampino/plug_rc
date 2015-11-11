@@ -10,15 +10,17 @@ import Json.Decode as Json
 import Debug exposing (log)
 
 type alias Model = { connection_id : String }
-type Action = Left | Right
+type Action = NoOp | Left | Right
 
 init : { x | connection_id : String } -> Model
 init x =
   Model x.connection_id
 
-update : Action -> Model -> (Model, Effects.Effects String)
+update : Action -> Model -> (Model, Effects.Effects Action)
 update action model =
-  (model, requestTurn model.connection_id (messageFor action))
+  case action of
+    NoOp -> (model, Effects.none)
+    _ -> (model, requestTurn model.connection_id (messageFor action))
 
 type alias Message = { which: Int, action: String }
 messageFor : Action -> Message
@@ -27,18 +29,18 @@ messageFor action =
     Left -> { which = 37, action = "turn" }
     Right -> { which = 38, action = "turn" }
 
-requestTurn : String -> Message -> Effects.Effects String
+requestTurn : String -> Message -> Effects.Effects Action
 requestTurn id message =
   Http.post (Json.string) ("/connections/" ++ id) (Http.string (toString message))
   |> Task.toMaybe
   |> Task.map taskMap
   |> Effects.task
 
-taskMap : Maybe String -> String
+taskMap : Maybe String -> Action
 taskMap r =
   case log "response" r of
-    Just val -> val
-    Nothing -> "error"
+    Just val -> NoOp
+    Nothing -> NoOp
 
 view : Signal.Address Action -> Model -> Html
 view address model =

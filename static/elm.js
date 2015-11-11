@@ -12907,33 +12907,12 @@ Elm.Remote.make = function (_elm) {
                                                         ,{ctor: "_Tuple2"
                                                          ,_0: "text-align"
                                                          ,_1: "center"}]));
-   var taskMap = function (r) {
-      return function () {
-         var _v0 = A2($Debug.log,
-         "response",
-         r);
-         switch (_v0.ctor)
-         {case "Just": return _v0._0;
-            case "Nothing": return "error";}
-         _U.badCase($moduleName,
-         "between lines 39 and 41");
-      }();
-   };
-   var requestTurn = F2(function (id,
-   message) {
-      return $Effects.task($Task.map(taskMap)($Task.toMaybe(A3($Http.post,
-      $Json$Decode.string,
-      A2($Basics._op["++"],
-      "/connections/",
-      id),
-      $Http.string($Basics.toString(message))))));
-   });
    var messageFor = function (action) {
       return function () {
-         var _v2 = A2($Debug.log,
+         var _v0 = A2($Debug.log,
          "messageFor action: ",
          action);
-         switch (_v2.ctor)
+         switch (_v0.ctor)
          {case "Left": return {_: {}
                               ,action: "turn"
                               ,which: 37};
@@ -12941,7 +12920,7 @@ Elm.Remote.make = function (_elm) {
                                  ,action: "turn"
                                  ,which: 38};}
          _U.badCase($moduleName,
-         "between lines 26 and 28");
+         "between lines 28 and 30");
       }();
    };
    var Message = F2(function (a,
@@ -12949,14 +12928,6 @@ Elm.Remote.make = function (_elm) {
       return {_: {}
              ,action: b
              ,which: a};
-   });
-   var update = F2(function (action,
-   model) {
-      return {ctor: "_Tuple2"
-             ,_0: model
-             ,_1: A2(requestTurn,
-             model.connection_id,
-             messageFor(action))};
    });
    var Right = {ctor: "Right"};
    var Left = {ctor: "Left"};
@@ -12977,6 +12948,43 @@ Elm.Remote.make = function (_elm) {
                    address,
                    Right)]),
                    _L.fromArray([$Html.text("->")]))]));
+   });
+   var NoOp = {ctor: "NoOp"};
+   var taskMap = function (r) {
+      return function () {
+         var _v1 = A2($Debug.log,
+         "response",
+         r);
+         switch (_v1.ctor)
+         {case "Just": return NoOp;
+            case "Nothing": return NoOp;}
+         _U.badCase($moduleName,
+         "between lines 41 and 43");
+      }();
+   };
+   var requestTurn = F2(function (id,
+   message) {
+      return $Effects.task($Task.map(taskMap)($Task.toMaybe(A3($Http.post,
+      $Json$Decode.string,
+      A2($Basics._op["++"],
+      "/connections/",
+      id),
+      $Http.string($Basics.toString(message))))));
+   });
+   var update = F2(function (action,
+   model) {
+      return function () {
+         switch (action.ctor)
+         {case "NoOp":
+            return {ctor: "_Tuple2"
+                   ,_0: model
+                   ,_1: $Effects.none};}
+         return {ctor: "_Tuple2"
+                ,_0: model
+                ,_1: A2(requestTurn,
+                model.connection_id,
+                messageFor(action))};
+      }();
    });
    var Model = function (a) {
       return {_: {}
@@ -13064,7 +13072,30 @@ Elm.RemoteList.make = function (_elm) {
       return function () {
          switch (action.ctor)
          {case "Control":
-            return noFx(model);
+            return function () {
+                 var singleton = A2($List.filter,
+                 function (y) {
+                    return _U.eq(y.connection_id,
+                    action._0);
+                 },
+                 model);
+                 var action_effect = function () {
+                    switch (singleton.ctor)
+                    {case "::":
+                       return $Basics.snd(A2($Remote.update,
+                         action._1,
+                         singleton._0));
+                       case "[]":
+                       return $Effects.none;}
+                    _U.badCase($moduleName,
+                    "between lines 46 and 49");
+                 }();
+                 return {ctor: "_Tuple2"
+                        ,_0: model
+                        ,_1: A2($Effects.map,
+                        Control(action._0),
+                        action_effect)};
+              }();
             case "Init":
             return noFx(A2($List.map,
               function (z) {

@@ -28,7 +28,7 @@ leave x = Leave x
 initList list = Init list
 noOp = NoOp
 
-update : Action -> Model -> (Model, Effects.Effects e)
+update : Action -> Model -> (Model, Effects.Effects Action)
 update action model =
   case action of
     NoOp ->
@@ -40,14 +40,15 @@ update action model =
     Leave x ->
       noFx ( List.filter (\y -> y.connection_id /= x.connection_id) model )
     Control c_id remote_action ->
-      noFx model
-      -- let
-      --   reducer remote (list, e) =
-      --     case remote.connection_id == c_id of
-      --       true -> ( List.append( list [remote] ), snd ( Remote.update remote_action remote ))
-      --       false -> ( List.append( list [remote] ), e )
-      -- in
-      --   List.foldl reducer init model
+      let
+        singleton = List.filter (\y -> y.connection_id == c_id) model
+        action_effect =
+          case singleton of
+            remote::t -> snd ( Remote.update remote_action remote )
+            [] -> Effects.none
+      in
+        (model, Effects.map (Control c_id) action_effect)
+
 
 view : Signal.Address Action -> Model -> Html
 view address model =
