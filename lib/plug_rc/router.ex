@@ -51,7 +51,8 @@ defmodule PlugRc.Router do
   end
 
   defp register_controller(conn) do
-    {:ok, _pid, _id} = PlugRc.Connections.register_controller conn
+    {:ok, pid, _id} = PlugRc.Connections.register_controller conn
+    Process.link pid
     conn
   end
 
