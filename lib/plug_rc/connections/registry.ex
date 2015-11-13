@@ -40,10 +40,10 @@ defmodule PlugRc.Connections.Registry do
   end
 
   def handle_info({:DOWN, ref, :process, _pid, :chunk_complete}, state) do
-    IO.puts "\n\n>>>>>>>>>> got it! >>>>>>>>>>>\n #{inspect(ref)}"
     {{type, id}, new_refs} = HashDict.pop state.refs, ref
     {pid, new_pids_hash} = HashDict.pop state.pids[type], id
     # TODO:
+    Logger.info "CONNECTION CLOSED: #{id} #{type}"
     ^_pid = pid
     new_pids = Map.put state.pids, type, new_pids_hash
     if (type == :remote), do: notify_controllers(state, "leave", id)
