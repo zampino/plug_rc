@@ -1,6 +1,6 @@
 defmodule PlugRc.Router do
-  use Plug.Router
   require Logger
+  use Pastelli.Router
 
   plug Plug.Parsers, parsers: [:json], pass: ["text/*"], json_decoder: Poison
 
@@ -16,20 +16,14 @@ defmodule PlugRc.Router do
 
   def init(_options), do: []
 
-  get "/connections" do
-    conn = put_resp_content_type(conn, "text/event-stream")
-    |> send_chunked(200)
-    |> register_controller()
-    handshake = Poison.encode_to_iodata! PlugRc.Connections.remotes
-    assign(conn, :init_chunk, "retry: 6000\nevent: handshake\ndata: #{handshake}\n\n")
+  stream "/connections" do
+    register_controller(conn)
+    |> init_chunk(PlugRc.Connections.remotes, event: :handshake)
   end
 
-  get "/remote" do
-    {conn, id} = put_resp_content_type(conn, "text/event-stream")
-    |> send_chunked(200)
-    |> register_remote()
-    handshake = Poison.encode_to_iodata!(%{connection_id: id})
-    assign(conn, :init_chunk, "retry: 6000\nevent: handshake\ndata: #{handshake}\n\n")
+  stream "/remote" do
+    {conn, id} = register_remote(conn)
+    init_chunk conn, %{connection_id: id}, event: :handshake
   end
 
   post "/connections/:id" do

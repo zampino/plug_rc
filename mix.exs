@@ -17,6 +17,7 @@ defmodule PlugRc.Mixfile do
     [
       {:hashids, "~> 2.0"},
       {:pastelli, github: "zampino/pastelli"},
+      # {:pastelli, path: "../pastelli"},
       {:poison, "~> 1.3.0"},
       {:plug_cors, "~> 0.7.0"}
     ]

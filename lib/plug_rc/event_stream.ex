@@ -14,8 +14,7 @@ defmodule EventStream do
   end
 
   def send_event(event, conn) do
-    json_data = Poison.encode_to_iodata!(event)
     Logger.info "\nSENDING: #{inspect event}\n"
-    Plug.Conn.chunk conn, "event: message\ndata: #{json_data}\n\n"
+    Pastelli.Conn.event conn, event
   end
 end
