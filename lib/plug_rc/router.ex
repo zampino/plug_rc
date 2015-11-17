@@ -14,11 +14,9 @@ defmodule PlugRc.Router do
   plug :match
   plug :dispatch
 
-  def init(_options), do: []
-
   stream "/connections" do
     register_controller(conn)
-    |> init_chunk(PlugRc.Connections.remotes, event: :handshake)
+    |> init_chunk PlugRc.Connections.remotes, event: :handshake
   end
 
   stream "/remote" do
