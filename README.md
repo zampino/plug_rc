@@ -15,8 +15,9 @@ It's live [here](http://plugrc.herokuapp.com/index.html).
 
 ## Event Streams
 
-Elixir GenEvent streams abstract incredibly well
-server-sent event sourcing, like in this very twenty lines of code:
+Together with Pastelli routing and message serialization,
+Elixir GenEvent streams offer a perfect abstraction for
+server-sent event sourcing, like in this very twenty lines of [code](https://github.com/zampino/plug_rc/blob/master/lib/plug_rc/event_stream.ex):
 
 ```elixir
 defmodule EventStream do
@@ -34,13 +35,15 @@ defmodule EventStream do
   end
 
   def send_event(event, conn) do
-    json_data = Poison.encode_to_iodata!(event)
-    Plug.Conn.chunk conn, "event: message\ndata: #{json_data}\n\n"
+    # event here is an arbitrary Poison-serializable data, like a string or a map
+    Pastelli.Conn.event conn, event
   end
 end
 ```
-once your state boots `EventStream` and captures `events_pid`, then
-it's just a matter of
+
+Once your application starts a link to `EventStream` module and stores `events_pid`, then
+it's just a matter of:
+
 ```elixir
 GenEvent.ack_notify events_pid, %{hallo: "world"}
 ```
