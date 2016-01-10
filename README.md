@@ -1,23 +1,31 @@
 # PlugRc
 
-A Remote Controller for my [slides](http://zampino.github.io/talks)
+A multi-device remote controller based on a simple
+Elixir [Plug](https://github.com/elixir-lang/plug) Router,
+and Event Source streaming over [Elm](http://elm-lang.org) ports for the front-end.
+For the moment :-) steering just some browser
+device showing some slides here http://zampino.github.io/talks.
 
-It just streams _left_ and _right_ events over `EventSource` connections.
-Whenever a slides engine connects, a remote control session appears
-on the manager with a pair of buttons. You can connect potentially
-infinite slides and infinite controllers, but why?.
+Whenever a device connects, a remote control session appears
+on the manager with a pair of buttons, streaming
+_left_ and _right_ events over Event Source.
+You can connect potentially
+infinite slides and infinite controllers.
+![lefts-and-rights](screenshot.png)
 
-It uses [Pastelli](https://github.com/zampino/pastelli) Plug adapter to serve a
-simple Elixir Plug router with a mini Elm layer.
+Devices are identified in the backend through erlang's `unique_integer`s and
+the very nice [Hashids](http://hashids.org/elixir/).
 
-It's live [here](http://plugrc.herokuapp.com/index.html).
+It uses [Pastelli](https://github.com/zampino/pastelli) Plug adapter
+for [elli](https://github.com/knutin/elli) erlang webserver.
 
+It's live http://plugrc.herokuapp.com/index.html.
 
 ## Event Streams
 
 Together with Pastelli routing and message serialization,
 Elixir GenEvent streams offer a perfect abstraction for
-server-sent event sourcing, like in this very twenty lines of [code](https://github.com/zampino/plug_rc/blob/master/lib/plug_rc/event_stream.ex):
+server-sent-event sourcing, like in this very twenty lines of [code](https://github.com/zampino/plug_rc/blob/master/lib/plug_rc/event_stream.ex):
 
 ```elixir
 defmodule EventStream do
